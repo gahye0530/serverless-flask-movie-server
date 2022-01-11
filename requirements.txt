@@ -7,5 +7,5 @@ passlib
 # python email validation library
 email-validator
 flask-jwt-extended
-pandas==1.2.4
-numpy==1.20.0
+pandas
+numpy
