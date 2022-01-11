@@ -8,4 +8,4 @@ passlib
 email-validator
 flask-jwt-extended
 pandas
-numpy
+numpy==1.20.0
