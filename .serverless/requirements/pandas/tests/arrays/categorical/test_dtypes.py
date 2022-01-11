@@ -3,13 +3,7 @@ import pytest
 
 from pandas.core.dtypes.dtypes import CategoricalDtype
 
-from pandas import (
-    Categorical,
-    CategoricalIndex,
-    Index,
-    Series,
-    Timestamp,
-)
+from pandas import Categorical, CategoricalIndex, Index, Series, Timestamp
 import pandas._testing as tm
 
 
@@ -133,7 +127,7 @@ class TestCategoricalDtypes:
         expected = np.array(cat)
         tm.assert_numpy_array_equal(result, expected)
 
-        msg = r"Cannot cast object dtype to float64"
+        msg = r"Cannot cast object dtype to <class 'float'>"
         with pytest.raises(ValueError, match=msg):
             cat.astype(float)
 

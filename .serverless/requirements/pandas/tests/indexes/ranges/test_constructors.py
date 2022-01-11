@@ -3,11 +3,7 @@ from datetime import datetime
 import numpy as np
 import pytest
 
-from pandas import (
-    Index,
-    RangeIndex,
-    Series,
-)
+from pandas import Index, RangeIndex, Series
 import pandas._testing as tm
 
 
@@ -91,12 +87,11 @@ class TestRangeIndexConstructors:
         ):
             RangeIndex(index, dtype="float64")
 
-    def test_constructor_range_object(self):
-        result = RangeIndex(range(1, 5, 2))
-        expected = RangeIndex(1, 5, 2)
-        tm.assert_index_equal(result, expected, exact=True)
-
     def test_constructor_range(self):
+
+        msg = "Value needs to be a scalar value, was type range"
+        with pytest.raises(TypeError, match=msg):
+            result = RangeIndex(range(1, 5, 2))
 
         result = RangeIndex.from_range(range(1, 5, 2))
         expected = RangeIndex(1, 5, 2)
@@ -119,9 +114,12 @@ class TestRangeIndexConstructors:
         expected = RangeIndex(1, 5, 2)
         tm.assert_index_equal(result, expected, exact=True)
 
-        msg = (
-            r"(RangeIndex.)?from_range\(\) got an unexpected keyword argument( 'copy')?"
-        )
+        with pytest.raises(
+            ValueError,
+            match="Incorrect `dtype` passed: expected signed integer, received float64",
+        ):
+            Index(range(1, 5, 2), dtype="float64")
+        msg = r"^from_range\(\) got an unexpected keyword argument"
         with pytest.raises(TypeError, match=msg):
             RangeIndex.from_range(range(10), copy=True)
 

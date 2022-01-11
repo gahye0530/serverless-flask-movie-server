@@ -5,12 +5,7 @@ import numpy as np
 from pandas.core.dtypes.dtypes import DatetimeTZDtype
 
 import pandas as pd
-from pandas import (
-    DataFrame,
-    Series,
-    date_range,
-    option_context,
-)
+from pandas import DataFrame, Series, date_range, option_context
 import pandas._testing as tm
 
 

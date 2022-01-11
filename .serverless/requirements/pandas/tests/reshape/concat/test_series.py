@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas as pd
 from pandas import (
     DataFrame,
     DatetimeIndex,
@@ -47,7 +48,7 @@ class TestSeriesConcat:
         s2 = Series([], dtype=object)
 
         expected = s1
-        result = concat([s1, s2])
+        result = pd.concat([s1, s2])
         tm.assert_series_equal(result, expected)
 
     def test_concat_series_axis1(self, sort=sort):
@@ -116,7 +117,7 @@ class TestSeriesConcat:
         # GH21015
         s1 = Series({"a": 1, "b": 2}, name=s1name)
         s2 = Series({"c": 5, "d": 6}, name=s2name)
-        result = concat([s1, s2])
+        result = pd.concat([s1, s2])
         expected = Series({"a": 1, "b": 2, "c": 5, "d": 6})
         tm.assert_series_equal(result, expected)
 
@@ -142,9 +143,3 @@ class TestSeriesConcat:
         result = concat([foo, bar, baz], axis=1, ignore_index=True)
         expected = DataFrame({0: [1, 2], 1: [1, 2], 2: [4, 5]})
         tm.assert_frame_equal(result, expected)
-
-    def test_concat_series_length_one_reversed(self, frame_or_series):
-        # GH39401
-        obj = frame_or_series([100])
-        result = concat([obj.iloc[::-1]])
-        tm.assert_equal(result, obj)

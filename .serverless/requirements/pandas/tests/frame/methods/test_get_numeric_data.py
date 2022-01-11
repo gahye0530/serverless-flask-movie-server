@@ -1,15 +1,8 @@
 import numpy as np
 
-import pandas as pd
-from pandas import (
-    Categorical,
-    DataFrame,
-    Index,
-    Series,
-    Timestamp,
-)
+from pandas import Categorical, DataFrame, Index, Series, Timestamp
 import pandas._testing as tm
-from pandas.core.arrays import IntervalArray
+from pandas.core.arrays import IntervalArray, integer_array
 
 
 class TestGetNumericData:
@@ -92,9 +85,9 @@ class TestGetNumericData:
         # GH#22290
         df = DataFrame(
             {
-                "A": pd.array([-10, np.nan, 0, 10, 20, 30], dtype="Int64"),
+                "A": integer_array([-10, np.nan, 0, 10, 20, 30], dtype="Int64"),
                 "B": Categorical(list("abcabc")),
-                "C": pd.array([0, 1, 2, 3, np.nan, 5], dtype="UInt8"),
+                "C": integer_array([0, 1, 2, 3, np.nan, 5], dtype="UInt8"),
                 "D": IntervalArray.from_breaks(range(7)),
             }
         )

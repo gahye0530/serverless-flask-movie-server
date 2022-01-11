@@ -4,7 +4,7 @@ email-validator
 flask-jwt-extended
 flask-restful
 mysql-connector-python
-numpy
-pandas
+numpy==1.20.0
+pandas==1.2.4
 passlib
 psycopg2-binary

@@ -1,10 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    Series,
-    Timestamp,
-)
+from pandas import Series, Timestamp
 import pandas._testing as tm
 
 

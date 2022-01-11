@@ -14,8 +14,3 @@ class TestPtp:
         arr = np.random.randn(N)
         ser = Series(arr)
         assert np.ptp(ser) == np.ptp(arr)
-
-
-def test_numpy_unique(datetime_series):
-    # it works!
-    np.unique(datetime_series)

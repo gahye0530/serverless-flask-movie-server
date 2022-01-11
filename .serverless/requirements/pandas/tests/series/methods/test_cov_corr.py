@@ -6,10 +6,7 @@ import pytest
 import pandas.util._test_decorators as td
 
 import pandas as pd
-from pandas import (
-    Series,
-    isna,
-)
+from pandas import Series, isna
 import pandas._testing as tm
 
 

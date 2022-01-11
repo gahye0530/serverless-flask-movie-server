@@ -2,11 +2,7 @@
 import numpy as np
 import pytest
 
-from pandas.core.indexers import (
-    is_scalar_indexer,
-    length_of_indexer,
-    validate_indices,
-)
+from pandas.core.indexers import is_scalar_indexer, length_of_indexer, validate_indices
 
 
 def test_length_of_indexer():

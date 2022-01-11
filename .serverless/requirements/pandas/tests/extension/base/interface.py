@@ -5,7 +5,8 @@ from pandas.core.dtypes.dtypes import ExtensionDtype
 
 import pandas as pd
 import pandas._testing as tm
-from pandas.tests.extension.base.base import BaseExtensionTests
+
+from .base import BaseExtensionTests
 
 
 class BaseInterfaceTests(BaseExtensionTests):
@@ -48,8 +49,7 @@ class BaseInterfaceTests(BaseExtensionTests):
 
         # the data can never contain other nan-likes than na_value
         for na_value_obj in tm.NULL_OBJECTS:
-            if na_value_obj is na_value or type(na_value_obj) == type(na_value):
-                # type check for e.g. two instances of Decimal("NAN")
+            if na_value_obj is na_value:
                 continue
             assert na_value_obj not in data
             assert na_value_obj not in data_missing
@@ -81,8 +81,7 @@ class BaseInterfaceTests(BaseExtensionTests):
 
     def test_is_numeric_honored(self, data):
         result = pd.Series(data)
-        if hasattr(result._mgr, "blocks"):
-            assert result._mgr.blocks[0].is_numeric is data.dtype._is_numeric
+        assert result._mgr.blocks[0].is_numeric is data.dtype._is_numeric
 
     def test_isna_extension_array(self, data_missing):
         # If your `isna` returns an ExtensionArray, you must also implement

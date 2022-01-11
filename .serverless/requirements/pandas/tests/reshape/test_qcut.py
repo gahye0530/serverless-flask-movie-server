@@ -23,10 +23,7 @@ import pandas._testing as tm
 from pandas.api.types import CategoricalDtype as CDT
 from pandas.core.algorithms import quantile
 
-from pandas.tseries.offsets import (
-    Day,
-    Nano,
-)
+from pandas.tseries.offsets import Day, Nano
 
 
 def test_qcut():
@@ -202,7 +199,7 @@ def test_single_quantile(data, start, end, length, labels):
         intervals = IntervalIndex([Interval(start, end)] * length, closed="right")
         expected = Series(intervals).astype(CDT(ordered=True))
     else:
-        expected = Series([0] * length, dtype=np.intp)
+        expected = Series([0] * length)
 
     tm.assert_series_equal(result, expected)
 
@@ -293,8 +290,8 @@ def test_qcut_bool_coercion_to_int(bins, box, compare):
 
 
 @pytest.mark.parametrize("q", [2, 5, 10])
-def test_qcut_nullable_integer(q, any_nullable_numeric_dtype):
-    arr = pd.array(np.arange(100), dtype=any_nullable_numeric_dtype)
+def test_qcut_nullable_integer(q, any_nullable_int_dtype):
+    arr = pd.array(np.arange(100), dtype=any_nullable_int_dtype)
     arr[::2] = pd.NA
 
     result = qcut(arr, q)

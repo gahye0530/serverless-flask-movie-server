@@ -1,10 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    Index,
-    MultiIndex,
-)
+from pandas import Index, MultiIndex
 
 
 def test_is_monotonic_increasing():

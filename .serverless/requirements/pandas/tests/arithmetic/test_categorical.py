@@ -1,9 +1,6 @@
 import numpy as np
 
-from pandas import (
-    Categorical,
-    Series,
-)
+from pandas import Categorical, Series
 import pandas._testing as tm
 
 

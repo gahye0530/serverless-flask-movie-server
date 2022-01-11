@@ -5,13 +5,7 @@ import numpy as np
 from pandas._libs import iNaT
 
 import pandas as pd
-from pandas import (
-    Categorical,
-    Index,
-    NaT,
-    Series,
-    isna,
-)
+from pandas import Categorical, Index, NaT, Series, isna
 import pandas._testing as tm
 
 

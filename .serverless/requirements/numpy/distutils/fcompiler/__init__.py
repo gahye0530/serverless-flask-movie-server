@@ -610,7 +610,7 @@ class FCompiler(CCompiler):
             self.spawn(command, display=display)
         except DistutilsExecError as e:
             msg = str(e)
-            raise CompileError(msg) from None
+            raise CompileError(msg)
 
     def module_options(self, module_dirs, module_build_dir):
         options = []
@@ -678,7 +678,7 @@ class FCompiler(CCompiler):
                 self.spawn(command)
             except DistutilsExecError as e:
                 msg = str(e)
-                raise LinkError(msg) from None
+                raise LinkError(msg)
         else:
             log.debug("skipping %s (up-to-date)", output_filename)
 
@@ -743,11 +743,9 @@ _default_compilers = (
     ('win32', ('gnu', 'intelv', 'absoft', 'compaqv', 'intelev', 'gnu95', 'g95',
                'intelvem', 'intelem', 'flang')),
     ('cygwin.*', ('gnu', 'intelv', 'absoft', 'compaqv', 'intelev', 'gnu95', 'g95')),
-    ('linux.*', ('arm', 'gnu95', 'intel', 'lahey', 'pg', 'nv', 'absoft', 'nag',
-                 'vast', 'compaq', 'intele', 'intelem', 'gnu', 'g95', 
-                 'pathf95', 'nagfor', 'fujitsu')),
-    ('darwin.*', ('gnu95', 'nag', 'nagfor', 'absoft', 'ibm', 'intel', 'gnu',
-                 'g95', 'pg')),
+    ('linux.*', ('gnu95', 'intel', 'lahey', 'pg', 'nv', 'absoft', 'nag', 'vast', 'compaq',
+                 'intele', 'intelem', 'gnu', 'g95', 'pathf95', 'nagfor', 'fujitsu')),
+    ('darwin.*', ('gnu95', 'nag', 'absoft', 'ibm', 'intel', 'gnu', 'g95', 'pg')),
     ('sunos.*', ('sun', 'gnu', 'gnu95', 'g95')),
     ('irix.*', ('mips', 'gnu', 'gnu95',)),
     ('aix.*', ('ibm', 'gnu', 'gnu95',)),
@@ -964,10 +962,10 @@ def dummy_fortran_file():
     return name[:-2]
 
 
-is_f_file = re.compile(r'.*\.(for|ftn|f77|f)\Z', re.I).match
-_has_f_header = re.compile(r'-\*-\s*fortran\s*-\*-', re.I).search
-_has_f90_header = re.compile(r'-\*-\s*f90\s*-\*-', re.I).search
-_has_fix_header = re.compile(r'-\*-\s*fix\s*-\*-', re.I).search
+is_f_file = re.compile(r'.*[.](for|ftn|f77|f)\Z', re.I).match
+_has_f_header = re.compile(r'-[*]-\s*fortran\s*-[*]-', re.I).search
+_has_f90_header = re.compile(r'-[*]-\s*f90\s*-[*]-', re.I).search
+_has_fix_header = re.compile(r'-[*]-\s*fix\s*-[*]-', re.I).search
 _free_f90_start = re.compile(r'[^c*!]\s*[^\s\d\t]', re.I).match
 
 def is_free_format(file):
@@ -978,7 +976,7 @@ def is_free_format(file):
     with open(file, encoding='latin1') as f:
         line = f.readline()
         n = 10000 # the number of non-comment lines to scan for hints
-        if _has_f_header(line) or _has_fix_header(line):
+        if _has_f_header(line):
             n = 0
         elif _has_f90_header(line):
             n = 0

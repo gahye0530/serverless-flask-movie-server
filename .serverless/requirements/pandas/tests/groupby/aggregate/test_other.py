@@ -8,8 +8,6 @@ from functools import partial
 import numpy as np
 import pytest
 
-import pandas.util._test_decorators as td
-
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -44,16 +42,9 @@ def test_agg_api():
     def peak_to_peak(arr):
         return arr.max() - arr.min()
 
-    with tm.assert_produces_warning(
-        FutureWarning, match="Dropping invalid", check_stacklevel=False
-    ):
-        expected = grouped.agg([peak_to_peak])
+    expected = grouped.agg([peak_to_peak])
     expected.columns = ["data1", "data2"]
-
-    with tm.assert_produces_warning(
-        FutureWarning, match="Dropping invalid", check_stacklevel=False
-    ):
-        result = grouped.agg(peak_to_peak)
+    result = grouped.agg(peak_to_peak)
     tm.assert_frame_equal(result, expected)
 
 
@@ -219,7 +210,7 @@ def test_aggregate_api_consistency():
     expected.columns = MultiIndex.from_product([["C", "D"], ["mean", "sum"]])
 
     msg = r"Column\(s\) \['r', 'r2'\] do not exist"
-    with pytest.raises(KeyError, match=msg):
+    with pytest.raises(SpecificationError, match=msg):
         grouped[["D", "C"]].agg({"r": np.sum, "r2": np.mean})
 
 
@@ -234,7 +225,7 @@ def test_agg_dict_renaming_deprecation():
         )
 
     msg = r"Column\(s\) \['ma'\] do not exist"
-    with pytest.raises(KeyError, match=msg):
+    with pytest.raises(SpecificationError, match=msg):
         df.groupby("A")[["B", "C"]].agg({"ma": "max"})
 
     msg = r"nested renamer is not supported"
@@ -301,8 +292,7 @@ def test_agg_item_by_item_raise_typeerror():
         raise TypeError("test")
 
     with pytest.raises(TypeError, match="test"):
-        with tm.assert_produces_warning(FutureWarning, match="Dropping invalid"):
-            df.groupby(0).agg(raiseException)
+        df.groupby(0).agg(raiseException)
 
 
 def test_series_agg_multikey():
@@ -422,7 +412,6 @@ def test_agg_callables():
         tm.assert_frame_equal(result, expected)
 
 
-@td.skip_array_manager_not_yet_implemented  # TODO(ArrayManager) columns with ndarrays
 def test_agg_over_numpy_arrays():
     # GH 3788
     df = DataFrame(
@@ -433,31 +422,20 @@ def test_agg_over_numpy_arrays():
         ],
         columns=["category", "arraydata"],
     )
-    gb = df.groupby("category")
+    result = df.groupby("category").agg(sum)
 
     expected_data = [[np.array([50, 70, 90])], [np.array([20, 30, 40])]]
     expected_index = Index([1, 2], name="category")
     expected_column = ["arraydata"]
     expected = DataFrame(expected_data, index=expected_index, columns=expected_column)
 
-    alt = gb.sum(numeric_only=False)
-    tm.assert_frame_equal(alt, expected)
-
-    result = gb.agg("sum", numeric_only=False)
     tm.assert_frame_equal(result, expected)
 
-    # FIXME: the original version of this test called `gb.agg(sum)`
-    #  and that raises TypeError if `numeric_only=False` is passed
 
-
-@pytest.mark.parametrize("as_period", [True, False])
-def test_agg_tzaware_non_datetime_result(as_period):
+def test_agg_tzaware_non_datetime_result():
     # discussed in GH#29589, fixed in GH#29641, operating on tzaware values
     #  with function that is not dtype-preserving
-    dti = date_range("2012-01-01", periods=4, tz="UTC")
-    if as_period:
-        dti = dti.tz_localize(None).to_period("D")
-
+    dti = pd.date_range("2012-01-01", periods=4, tz="UTC")
     df = DataFrame({"a": [0, 0, 1, 1], "b": dti})
     gb = df.groupby("a")
 
@@ -476,9 +454,6 @@ def test_agg_tzaware_non_datetime_result(as_period):
     result = gb["b"].agg(lambda x: x.iloc[-1] - x.iloc[0])
     expected = Series([pd.Timedelta(days=1), pd.Timedelta(days=1)], name="b")
     expected.index.name = "a"
-    if as_period:
-        expected = Series([pd.offsets.Day(1), pd.offsets.Day(1)], name="b")
-        expected.index.name = "a"
     tm.assert_series_equal(result, expected)
 
 
@@ -531,13 +506,8 @@ def test_sum_uint64_overflow():
     )
 
     expected.index.name = 0
-    result = df.groupby(0).sum(numeric_only=False)
+    result = df.groupby(0).sum()
     tm.assert_frame_equal(result, expected)
-
-    # out column is non-numeric, so with numeric_only=True it is dropped
-    result2 = df.groupby(0).sum(numeric_only=True)
-    expected2 = expected[[]]
-    tm.assert_frame_equal(result2, expected2)
 
 
 @pytest.mark.parametrize(
@@ -650,11 +620,7 @@ def test_groupby_agg_err_catching(err_cls):
     #  in _python_agg_general
 
     # Use a non-standard EA to make sure we don't go down ndarray paths
-    from pandas.tests.extension.decimal.array import (
-        DecimalArray,
-        make_data,
-        to_decimal,
-    )
+    from pandas.tests.extension.decimal.array import DecimalArray, make_data, to_decimal
 
     data = make_data()[:5]
     df = DataFrame(

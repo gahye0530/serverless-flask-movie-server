@@ -5,14 +5,7 @@ from itertools import product
 import numpy as np
 import pytest
 
-from pandas import (
-    DataFrame,
-    MultiIndex,
-    Series,
-    array,
-    concat,
-    merge,
-)
+from pandas import DataFrame, MultiIndex, Series, array, concat, merge
 import pandas._testing as tm
 from pandas.core.algorithms import safe_sort
 import pandas.core.common as com
@@ -67,6 +60,7 @@ class TestSorting:
             assert left[k] == v
         assert len(left) == len(right)
 
+    @pytest.mark.arm_slow
     def test_int64_overflow_moar(self):
 
         # GH9096

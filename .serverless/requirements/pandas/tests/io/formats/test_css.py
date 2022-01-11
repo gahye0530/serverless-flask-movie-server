@@ -2,10 +2,7 @@ import pytest
 
 import pandas._testing as tm
 
-from pandas.io.formats.css import (
-    CSSResolver,
-    CSSWarning,
-)
+from pandas.io.formats.css import CSSResolver, CSSWarning
 
 
 def assert_resolves(css, props, inherited=None):

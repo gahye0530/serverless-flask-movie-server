@@ -2,13 +2,7 @@ import numpy as np
 import pytest
 
 import pandas as pd
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    Timestamp,
-)
+from pandas import DataFrame, Index, MultiIndex, Series, Timestamp
 import pandas._testing as tm
 from pandas.core.reshape.concat import concat
 from pandas.core.reshape.merge import merge
@@ -112,7 +106,7 @@ class TestMergeMulti:
         on_cols = ["key1", "key2"]
         result = left.join(right, on=on_cols, how=join_type).reset_index(drop=True)
 
-        expected = merge(left, right.reset_index(), on=on_cols, how=join_type)
+        expected = pd.merge(left, right.reset_index(), on=on_cols, how=join_type)
 
         tm.assert_frame_equal(result, expected)
 
@@ -120,7 +114,7 @@ class TestMergeMulti:
             drop=True
         )
 
-        expected = merge(
+        expected = pd.merge(
             left, right.reset_index(), on=on_cols, how=join_type, sort=True
         )
 
@@ -200,13 +194,13 @@ class TestMergeMulti:
 
     def test_merge_multiple_cols_with_mixed_cols_index(self):
         # GH29522
-        s = Series(
+        s = pd.Series(
             range(6),
             MultiIndex.from_product([["A", "B"], [1, 2, 3]], names=["lev1", "lev2"]),
             name="Amount",
         )
         df = DataFrame({"lev1": list("AAABBB"), "lev2": [1, 2, 3, 1, 2, 3], "col": 0})
-        result = merge(df, s.reset_index(), on=["lev1", "lev2"])
+        result = pd.merge(df, s.reset_index(), on=["lev1", "lev2"])
         expected = DataFrame(
             {
                 "lev1": list("AAABBB"),
@@ -534,8 +528,10 @@ class TestMergeMulti:
         tm.assert_frame_equal(results_merge, expected)
         tm.assert_frame_equal(results_join, expected)
 
-    @pytest.fixture
-    def household(self):
+    def test_join_multi_levels(self):
+
+        # GH 3662
+        # merge multi-levels
         household = DataFrame(
             {
                 "household_id": [1, 2, 3],
@@ -544,10 +540,6 @@ class TestMergeMulti:
             },
             columns=["household_id", "male", "wealth"],
         ).set_index("household_id")
-        return household
-
-    @pytest.fixture
-    def portfolio(self):
         portfolio = DataFrame(
             {
                 "household_id": [1, 2, 2, 3, 3, 3, 4],
@@ -573,10 +565,7 @@ class TestMergeMulti:
             },
             columns=["household_id", "asset_id", "name", "share"],
         ).set_index(["household_id", "asset_id"])
-        return portfolio
-
-    @pytest.fixture
-    def expected(self):
+        result = household.join(portfolio, how="inner")
         expected = (
             DataFrame(
                 {
@@ -612,20 +601,7 @@ class TestMergeMulti:
             .set_index(["household_id", "asset_id"])
             .reindex(columns=["male", "wealth", "name", "share"])
         )
-        return expected
-
-    def test_join_multi_levels(self, portfolio, household, expected):
-        portfolio = portfolio.copy()
-        household = household.copy()
-
-        # GH 3662
-        # merge multi-levels
-        result = household.join(portfolio, how="inner")
         tm.assert_frame_equal(result, expected)
-
-    def test_join_multi_levels_merge_equivalence(self, portfolio, household, expected):
-        portfolio = portfolio.copy()
-        household = household.copy()
 
         # equivalency
         result = merge(
@@ -635,10 +611,6 @@ class TestMergeMulti:
             how="inner",
         ).set_index(["household_id", "asset_id"])
         tm.assert_frame_equal(result, expected)
-
-    def test_join_multi_levels_outer(self, portfolio, household, expected):
-        portfolio = portfolio.copy()
-        household = household.copy()
 
         result = household.join(portfolio, how="outer")
         expected = concat(
@@ -657,10 +629,6 @@ class TestMergeMulti:
             sort=True,
         ).reindex(columns=expected.columns)
         tm.assert_frame_equal(result, expected)
-
-    def test_join_multi_levels_invalid(self, portfolio, household):
-        portfolio = portfolio.copy()
-        household = household.copy()
 
         # invalid cases
         household.index.name = "foo"
@@ -840,7 +808,7 @@ class TestJoinMultiMulti:
     ):
         # Multi-index join tests
         expected = (
-            merge(
+            pd.merge(
                 left_multi.reset_index(),
                 right_multi.reset_index(),
                 how=join_type,
@@ -861,7 +829,7 @@ class TestJoinMultiMulti:
         right_multi = right_multi.drop(columns=right_multi.columns)
 
         expected = (
-            merge(
+            pd.merge(
                 left_multi.reset_index(),
                 right_multi.reset_index(),
                 how=join_type,
@@ -917,7 +885,7 @@ class TestJoinMultiMulti:
         )
 
         result = left.join(right)
-        expected = merge(
+        expected = pd.merge(
             left.reset_index(), right.reset_index(), on=["key"], how="inner"
         ).set_index(["key", "X", "Y"])
 

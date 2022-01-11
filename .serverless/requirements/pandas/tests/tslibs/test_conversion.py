@@ -12,10 +12,7 @@ from pandas._libs.tslibs import (
     tzconversion,
 )
 
-from pandas import (
-    Timestamp,
-    date_range,
-)
+from pandas import Timestamp, date_range
 import pandas._testing as tm
 
 

@@ -1,7 +1,4 @@
-from copy import (
-    copy,
-    deepcopy,
-)
+from copy import copy, deepcopy
 
 import pytest
 
@@ -33,7 +30,7 @@ def test_copy(idx):
 
 
 def test_shallow_copy(idx):
-    i_copy = idx._view()
+    i_copy = idx._shallow_copy()
 
     assert_multiindex_copied(i_copy, idx)
 
@@ -82,7 +79,10 @@ def test_copy_method_kwargs(deep, kwarg, value):
         names=["first", "second"],
     )
     idx_copy = idx.copy(**{kwarg: value, "deep": deep})
-    assert getattr(idx_copy, kwarg) == value
+    if kwarg == "names":
+        assert getattr(idx_copy, kwarg) == value
+    else:
+        assert [list(i) for i in getattr(idx_copy, kwarg)] == value
 
 
 @pytest.mark.parametrize("deep", [True, False])

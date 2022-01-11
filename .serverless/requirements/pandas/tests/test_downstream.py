@@ -29,9 +29,6 @@ def df():
     return DataFrame({"A": [1, 2, 3]})
 
 
-# TODO(ArrayManager) dask is still accessing the blocks
-# https://github.com/dask/dask/pull/7318
-@td.skip_array_manager_not_yet_implemented
 def test_dask(df):
 
     toolz = import_module("toolz")  # noqa
@@ -69,21 +66,6 @@ def test_oo_optimizable():
     subprocess.check_call([sys.executable, "-OO", "-c", "import pandas"])
 
 
-def test_oo_optimized_datetime_index_unpickle():
-    # GH 42866
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-OO",
-            "-c",
-            (
-                "import pandas as pd, pickle; "
-                "pickle.loads(pickle.dumps(pd.date_range('2021-01-01', periods=1)))"
-            ),
-        ]
-    )
-
-
 @tm.network
 # Cython import warning
 @pytest.mark.filterwarnings("ignore:pandas.util.testing is deprecated")
@@ -107,10 +89,7 @@ def test_statsmodels():
 def test_scikit_learn(df):
 
     sklearn = import_module("sklearn")  # noqa
-    from sklearn import (
-        datasets,
-        svm,
-    )
+    from sklearn import datasets, svm
 
     digits = datasets.load_digits()
     clf = svm.SVC(gamma=0.001, C=100.0)

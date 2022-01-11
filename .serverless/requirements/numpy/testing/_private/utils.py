@@ -17,7 +17,6 @@ from unittest.case import SkipTest
 from warnings import WarningMessage
 import pprint
 
-import numpy as np
 from numpy.core import(
      intp, float32, empty, arange, array_repr, ndarray, isnat, array)
 import numpy.linalg.lapack_lite
@@ -35,7 +34,8 @@ __all__ = [
         'assert_allclose', 'IgnoreException', 'clear_and_catch_warnings',
         'SkipTest', 'KnownFailureException', 'temppath', 'tempdir', 'IS_PYPY',
         'HAS_REFCOUNT', 'suppress_warnings', 'assert_array_compare',
-        'assert_no_gc_cycles', 'break_cycles', 'HAS_LAPACK64', 'IS_PYSTON',
+        '_assert_valid_refcount', '_gen_alignment_data', 'assert_no_gc_cycles',
+        'break_cycles', 'HAS_LAPACK64'
         ]
 
 
@@ -48,8 +48,7 @@ KnownFailureTest = KnownFailureException  # backwards compat
 verbose = 0
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
-IS_PYSTON = hasattr(sys, "pyston_version_info")
-HAS_REFCOUNT = getattr(sys, 'getrefcount', None) is not None and not IS_PYSTON
+HAS_REFCOUNT = getattr(sys, 'getrefcount', None) is not None
 HAS_LAPACK64 = numpy.linalg.lapack_lite._ilp64
 
 
@@ -379,8 +378,7 @@ def assert_equal(actual, desired, err_msg='', verbose=True):
     try:
         isdesnat = isnat(desired)
         isactnat = isnat(actual)
-        dtypes_match = (np.asarray(desired).dtype.type ==
-                        np.asarray(actual).dtype.type)
+        dtypes_match = array(desired).dtype.type == array(actual).dtype.type
         if isdesnat and isactnat:
             # If both are NaT (and have the same dtype -- datetime or
             # timedelta) they are considered equal.
@@ -400,8 +398,8 @@ def assert_equal(actual, desired, err_msg='', verbose=True):
             return  # both nan, so equal
 
         # handle signed zero specially for floats
-        array_actual = np.asarray(actual)
-        array_desired = np.asarray(desired)
+        array_actual = array(actual)
+        array_desired = array(desired)
         if (array_actual.dtype.char in 'Mm' or
                 array_desired.dtype.char in 'Mm'):
             # version 1.18
@@ -483,7 +481,7 @@ def assert_almost_equal(actual,desired,decimal=7,err_msg='',verbose=True):
               instead of this function for more consistent floating point
               comparisons.
 
-    The test verifies that the elements of `actual` and `desired` satisfy.
+    The test verifies that the elements of ``actual`` and ``desired`` satisfy.
 
         ``abs(desired-actual) < 1.5 * 10**(-decimal)``
 
@@ -518,9 +516,9 @@ def assert_almost_equal(actual,desired,decimal=7,err_msg='',verbose=True):
 
     Examples
     --------
-    >>> from numpy.testing import assert_almost_equal
-    >>> assert_almost_equal(2.3333333333333, 2.33333334)
-    >>> assert_almost_equal(2.3333333333333, 2.33333334, decimal=10)
+    >>> import numpy.testing as npt
+    >>> npt.assert_almost_equal(2.3333333333333, 2.33333334)
+    >>> npt.assert_almost_equal(2.3333333333333, 2.33333334, decimal=10)
     Traceback (most recent call last):
         ...
     AssertionError:
@@ -528,8 +526,8 @@ def assert_almost_equal(actual,desired,decimal=7,err_msg='',verbose=True):
      ACTUAL: 2.3333333333333
      DESIRED: 2.33333334
 
-    >>> assert_almost_equal(np.array([1.0,2.3333333333333]),
-    ...                     np.array([1.0,2.33333334]), decimal=9)
+    >>> npt.assert_almost_equal(np.array([1.0,2.3333333333333]),
+    ...                         np.array([1.0,2.33333334]), decimal=9)
     Traceback (most recent call last):
         ...
     AssertionError:
@@ -703,8 +701,8 @@ def assert_array_compare(comparison, x, y, err_msg='', verbose=True, header='',
     __tracebackhide__ = True  # Hide traceback for py.test
     from numpy.core import array, array2string, isnan, inf, bool_, errstate, all, max, object_
 
-    x = np.asanyarray(x)
-    y = np.asanyarray(y)
+    x = array(x, copy=False, subok=True)
+    y = array(y, copy=False, subok=True)
 
     # original array for output formatting
     ox, oy = x, y
@@ -1035,7 +1033,7 @@ def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
         # make sure y is an inexact type to avoid abs(MIN_INT); will cause
         # casting of x later.
         dtype = result_type(y, 1.)
-        y = np.asanyarray(y, dtype)
+        y = array(y, dtype=dtype, copy=False, subok=True)
         z = abs(x - y)
 
         if not issubdtype(z.dtype, number):
@@ -1228,13 +1226,13 @@ def rundocs(filename=None, raise_on_error=True):
 
     >>> np.lib.test(doctests=True)  # doctest: +SKIP
     """
-    from numpy.distutils.misc_util import exec_mod_from_location
+    from numpy.compat import npy_load_module
     import doctest
     if filename is None:
         f = sys._getframe(1)
         filename = f.f_globals['__file__']
     name = os.path.splitext(os.path.basename(filename))[0]
-    m = exec_mod_from_location(name, filename)
+    m = npy_load_module(name, filename)
 
     tests = doctest.DocTestFinder().find(m)
     runner = doctest.DocTestRunner(verbose=False)
@@ -1680,11 +1678,11 @@ def nulp_diff(x, y, dtype=None):
     """
     import numpy as np
     if dtype:
-        x = np.asarray(x, dtype=dtype)
-        y = np.asarray(y, dtype=dtype)
+        x = np.array(x, dtype=dtype)
+        y = np.array(y, dtype=dtype)
     else:
-        x = np.asarray(x)
-        y = np.asarray(y)
+        x = np.array(x)
+        y = np.array(y)
 
     t = np.common_type(x, y)
     if np.iscomplexobj(x) or np.iscomplexobj(y):
@@ -1701,7 +1699,7 @@ def nulp_diff(x, y, dtype=None):
                          (x.shape, y.shape))
 
     def _diff(rx, ry, vdt):
-        diff = np.asarray(rx-ry, dtype=vdt)
+        diff = np.array(rx-ry, dtype=vdt)
         return np.abs(diff)
 
     rx = integer_repr(x)
@@ -2008,7 +2006,7 @@ class clear_and_catch_warnings(warnings.catch_warnings):
     def __init__(self, record=False, modules=()):
         self.modules = set(modules).union(self.class_modules)
         self._warnreg_copies = {}
-        super().__init__(record=record)
+        super(clear_and_catch_warnings, self).__init__(record=record)
 
     def __enter__(self):
         for mod in self.modules:
@@ -2016,10 +2014,10 @@ class clear_and_catch_warnings(warnings.catch_warnings):
                 mod_reg = mod.__warningregistry__
                 self._warnreg_copies[mod] = mod_reg.copy()
                 mod_reg.clear()
-        return super().__enter__()
+        return super(clear_and_catch_warnings, self).__enter__()
 
     def __exit__(self, *exc_info):
-        super().__exit__(*exc_info)
+        super(clear_and_catch_warnings, self).__exit__(*exc_info)
         for mod in self.modules:
             if hasattr(mod, '__warningregistry__'):
                 mod.__warningregistry__.clear()
@@ -2402,9 +2400,9 @@ def break_cycles():
 
     gc.collect()
     if IS_PYPY:
-        # a few more, just to make sure all the finalizers are called
+        # interpreter runs now, to call deleted objects' __del__ methods
         gc.collect()
-        gc.collect()
+        # two more, just to make sure
         gc.collect()
         gc.collect()
 
@@ -2518,3 +2516,4 @@ def _no_tracing(func):
             finally:
                 sys.settrace(original_trace)
         return wrapper
+

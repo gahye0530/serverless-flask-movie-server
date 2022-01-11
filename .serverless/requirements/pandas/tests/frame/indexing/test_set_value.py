@@ -3,10 +3,7 @@ import pytest
 
 from pandas.core.dtypes.common import is_float_dtype
 
-from pandas import (
-    DataFrame,
-    isna,
-)
+from pandas import DataFrame, isna
 
 
 class TestSetValue:

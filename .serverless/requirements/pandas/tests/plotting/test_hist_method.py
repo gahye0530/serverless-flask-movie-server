@@ -1,22 +1,13 @@
 """ Test cases for .hist method """
-import re
 
 import numpy as np
 import pytest
 
 import pandas.util._test_decorators as td
 
-from pandas import (
-    DataFrame,
-    Index,
-    Series,
-    to_datetime,
-)
+from pandas import DataFrame, Index, Series, to_datetime
 import pandas._testing as tm
-from pandas.tests.plotting.common import (
-    TestPlotBase,
-    _check_plot_works,
-)
+from pandas.tests.plotting.common import TestPlotBase, _check_plot_works
 
 pytestmark = pytest.mark.slow
 
@@ -43,20 +34,16 @@ class TestSeriesPlots(TestPlotBase):
             _check_plot_works(self.ts.hist, by=self.ts.index.month, bins=5)
 
         fig, ax = self.plt.subplots(1, 1)
-        _check_plot_works(self.ts.hist, ax=ax, default_axes=True)
-        _check_plot_works(self.ts.hist, ax=ax, figure=fig, default_axes=True)
-        _check_plot_works(self.ts.hist, figure=fig, default_axes=True)
+        _check_plot_works(self.ts.hist, ax=ax)
+        _check_plot_works(self.ts.hist, ax=ax, figure=fig)
+        _check_plot_works(self.ts.hist, figure=fig)
         tm.close()
 
         fig, (ax1, ax2) = self.plt.subplots(1, 2)
-        _check_plot_works(self.ts.hist, figure=fig, ax=ax1, default_axes=True)
-        _check_plot_works(self.ts.hist, figure=fig, ax=ax2, default_axes=True)
+        _check_plot_works(self.ts.hist, figure=fig, ax=ax1)
+        _check_plot_works(self.ts.hist, figure=fig, ax=ax2)
 
-        msg = (
-            "Cannot pass 'figure' when using the 'by' argument, since a new 'Figure' "
-            "instance will be created"
-        )
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             self.ts.hist(by=self.ts.index, figure=fig)
 
     def test_hist_bins_legacy(self):
@@ -66,11 +53,10 @@ class TestSeriesPlots(TestPlotBase):
 
     def test_hist_layout(self):
         df = self.hist_df
-        msg = "The 'layout' keyword is not supported when 'by' is None"
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             df.height.hist(layout=(1, 1))
 
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             df.height.hist(layout=[1, 1])
 
     def test_hist_layout_with_by(self):
@@ -111,10 +97,7 @@ class TestSeriesPlots(TestPlotBase):
         self._check_axes_shape(axes, axes_num=4, layout=(4, 2), figsize=(12, 7))
 
     def test_hist_no_overlap(self):
-        from matplotlib.pyplot import (
-            gcf,
-            subplot,
-        )
+        from matplotlib.pyplot import gcf, subplot
 
         x = Series(np.random.randn(2))
         y = Series(np.random.randn(2))
@@ -137,8 +120,7 @@ class TestSeriesPlots(TestPlotBase):
         fig1 = figure()
         fig2 = figure()
         ax1 = fig1.add_subplot(111)
-        msg = "passed axis not bound to passed figure"
-        with pytest.raises(AssertionError, match=msg):
+        with pytest.raises(AssertionError):
             self.ts.hist(ax=ax1, figure=fig2)
 
     @pytest.mark.parametrize(
@@ -179,59 +161,6 @@ class TestSeriesPlots(TestPlotBase):
 
         with pytest.raises(ValueError, match="Cannot use both legend and label"):
             s.hist(legend=True, by=by, label="c")
-
-    def test_hist_kwargs(self):
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.hist(bins=5, ax=ax)
-        assert len(ax.patches) == 5
-        self._check_text_labels(ax.yaxis.get_label(), "Frequency")
-        tm.close()
-
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.hist(orientation="horizontal", ax=ax)
-        self._check_text_labels(ax.xaxis.get_label(), "Frequency")
-        tm.close()
-
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.hist(align="left", stacked=True, ax=ax)
-        tm.close()
-
-    @td.skip_if_no_scipy
-    def test_hist_kde(self):
-
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.hist(logy=True, ax=ax)
-        self._check_ax_scales(ax, yaxis="log")
-        xlabels = ax.get_xticklabels()
-        # ticks are values, thus ticklabels are blank
-        self._check_text_labels(xlabels, [""] * len(xlabels))
-        ylabels = ax.get_yticklabels()
-        self._check_text_labels(ylabels, [""] * len(ylabels))
-
-        _check_plot_works(self.ts.plot.kde)
-        _check_plot_works(self.ts.plot.density)
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.kde(logy=True, ax=ax)
-        self._check_ax_scales(ax, yaxis="log")
-        xlabels = ax.get_xticklabels()
-        self._check_text_labels(xlabels, [""] * len(xlabels))
-        ylabels = ax.get_yticklabels()
-        self._check_text_labels(ylabels, [""] * len(ylabels))
-
-    @td.skip_if_no_scipy
-    def test_hist_kde_color(self):
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.hist(logy=True, bins=10, color="b", ax=ax)
-        self._check_ax_scales(ax, yaxis="log")
-        assert len(ax.patches) == 10
-        self._check_colors(ax.patches, facecolors=["b"] * 10)
-
-        _, ax = self.plt.subplots()
-        ax = self.ts.plot.kde(logy=True, color="r", ax=ax)
-        self._check_ax_scales(ax, yaxis="log")
-        lines = ax.get_lines()
-        assert len(lines) == 1
-        self._check_colors(lines, ["r"])
 
 
 @td.skip_if_no_mpl
@@ -318,7 +247,7 @@ class TestDataFramePlots(TestPlotBase):
         tm.close()
 
         # propagate attr exception from matplotlib.Axes.hist
-        with tm.external_error_raised(AttributeError):
+        with pytest.raises(AttributeError):
             ser.hist(foo="bar")
 
     def test_hist_non_numerical_or_datetime_raises(self):
@@ -375,16 +304,13 @@ class TestDataFramePlots(TestPlotBase):
             self._check_axes_shape(axes, axes_num=3, layout=expected)
 
         # layout too small for all 4 plots
-        msg = "Layout of 1x1 must be larger than required size 3"
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             df.hist(layout=(1, 1))
 
         # invalid format for layout
-        msg = re.escape("Layout must be a tuple of (rows, columns)")
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             df.hist(layout=(1,))
-        msg = "At least one dimension of layout must be positive"
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
             df.hist(layout=(-1, -1))
 
     # GH 9351
@@ -506,63 +432,6 @@ class TestDataFramePlots(TestPlotBase):
         with pytest.raises(ValueError, match="Cannot use both legend and label"):
             df.hist(legend=True, by=by, column=column, label="d")
 
-    def test_hist_df_kwargs(self):
-        df = DataFrame(np.random.randn(10, 2))
-        _, ax = self.plt.subplots()
-        ax = df.plot.hist(bins=5, ax=ax)
-        assert len(ax.patches) == 10
-
-    def test_hist_df_with_nonnumerics(self):
-        # GH 9853
-        with tm.RNGContext(1):
-            df = DataFrame(np.random.randn(10, 4), columns=["A", "B", "C", "D"])
-        df["E"] = ["x", "y"] * 5
-        _, ax = self.plt.subplots()
-        ax = df.plot.hist(bins=5, ax=ax)
-        assert len(ax.patches) == 20
-
-        _, ax = self.plt.subplots()
-        ax = df.plot.hist(ax=ax)  # bins=10
-        assert len(ax.patches) == 40
-
-    def test_hist_secondary_legend(self):
-        # GH 9610
-        df = DataFrame(np.random.randn(30, 4), columns=list("abcd"))
-
-        # primary -> secondary
-        _, ax = self.plt.subplots()
-        ax = df["a"].plot.hist(legend=True, ax=ax)
-        df["b"].plot.hist(ax=ax, legend=True, secondary_y=True)
-        # both legends are drawn on left ax
-        # left and right axis must be visible
-        self._check_legend_labels(ax, labels=["a", "b (right)"])
-        assert ax.get_yaxis().get_visible()
-        assert ax.right_ax.get_yaxis().get_visible()
-        tm.close()
-
-        # secondary -> secondary
-        _, ax = self.plt.subplots()
-        ax = df["a"].plot.hist(legend=True, secondary_y=True, ax=ax)
-        df["b"].plot.hist(ax=ax, legend=True, secondary_y=True)
-        # both legends are draw on left ax
-        # left axis must be invisible, right axis must be visible
-        self._check_legend_labels(ax.left_ax, labels=["a (right)", "b (right)"])
-        assert not ax.left_ax.get_yaxis().get_visible()
-        assert ax.get_yaxis().get_visible()
-        tm.close()
-
-        # secondary -> primary
-        _, ax = self.plt.subplots()
-        ax = df["a"].plot.hist(legend=True, secondary_y=True, ax=ax)
-        # right axes is returned
-        df["b"].plot.hist(ax=ax, legend=True)
-        # both legends are draw on left ax
-        # left and right axis must be visible
-        self._check_legend_labels(ax.left_ax, labels=["a (right)", "b"])
-        assert ax.left_ax.get_yaxis().get_visible()
-        assert ax.get_yaxis().get_visible()
-        tm.close()
-
 
 @td.skip_if_no_mpl
 class TestDataFrameGroupByPlots(TestPlotBase):
@@ -628,7 +497,7 @@ class TestDataFrameGroupByPlots(TestPlotBase):
 
         tm.close()
         # propagate attr exception from matplotlib.Axes.hist
-        with tm.external_error_raised(AttributeError):
+        with pytest.raises(AttributeError):
             _grouped_hist(df.A, by=df.C, foo="bar")
 
         msg = "Specify figure size by tuple instead"
@@ -716,10 +585,9 @@ class TestDataFrameGroupByPlots(TestPlotBase):
         tm.assert_numpy_array_equal(returned, axes[1])
         assert returned[0].figure is fig
 
-        fig, axes = self.plt.subplots(2, 3)
-        # pass different number of axes from required
-        msg = "The number of passed axes must be 1, the same as the output plot"
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(ValueError):
+            fig, axes = self.plt.subplots(2, 3)
+            # pass different number of axes from required
             axes = df.hist(column="height", ax=axes)
 
     def test_axis_share_x(self):
@@ -728,35 +596,35 @@ class TestDataFrameGroupByPlots(TestPlotBase):
         ax1, ax2 = df.hist(column="height", by=df.gender, sharex=True)
 
         # share x
-        assert self.get_x_axis(ax1).joined(ax1, ax2)
-        assert self.get_x_axis(ax2).joined(ax1, ax2)
+        assert ax1._shared_x_axes.joined(ax1, ax2)
+        assert ax2._shared_x_axes.joined(ax1, ax2)
 
         # don't share y
-        assert not self.get_y_axis(ax1).joined(ax1, ax2)
-        assert not self.get_y_axis(ax2).joined(ax1, ax2)
+        assert not ax1._shared_y_axes.joined(ax1, ax2)
+        assert not ax2._shared_y_axes.joined(ax1, ax2)
 
     def test_axis_share_y(self):
         df = self.hist_df
         ax1, ax2 = df.hist(column="height", by=df.gender, sharey=True)
 
         # share y
-        assert self.get_y_axis(ax1).joined(ax1, ax2)
-        assert self.get_y_axis(ax2).joined(ax1, ax2)
+        assert ax1._shared_y_axes.joined(ax1, ax2)
+        assert ax2._shared_y_axes.joined(ax1, ax2)
 
         # don't share x
-        assert not self.get_x_axis(ax1).joined(ax1, ax2)
-        assert not self.get_x_axis(ax2).joined(ax1, ax2)
+        assert not ax1._shared_x_axes.joined(ax1, ax2)
+        assert not ax2._shared_x_axes.joined(ax1, ax2)
 
     def test_axis_share_xy(self):
         df = self.hist_df
         ax1, ax2 = df.hist(column="height", by=df.gender, sharex=True, sharey=True)
 
         # share both x and y
-        assert self.get_x_axis(ax1).joined(ax1, ax2)
-        assert self.get_x_axis(ax2).joined(ax1, ax2)
+        assert ax1._shared_x_axes.joined(ax1, ax2)
+        assert ax2._shared_x_axes.joined(ax1, ax2)
 
-        assert self.get_y_axis(ax1).joined(ax1, ax2)
-        assert self.get_y_axis(ax2).joined(ax1, ax2)
+        assert ax1._shared_y_axes.joined(ax1, ax2)
+        assert ax2._shared_y_axes.joined(ax1, ax2)
 
     @pytest.mark.parametrize(
         "histtype, expected",

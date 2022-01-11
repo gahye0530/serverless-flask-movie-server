@@ -5,15 +5,9 @@ import pytest
 
 import pandas.util._test_decorators as td
 
-from pandas import (
-    DataFrame,
-    Series,
-)
+from pandas import DataFrame, Series
 import pandas._testing as tm
-from pandas.tests.plotting.common import (
-    TestPlotBase,
-    _check_plot_works,
-)
+from pandas.tests.plotting.common import TestPlotBase, _check_plot_works
 
 import pandas.plotting as plotting
 
@@ -100,15 +94,10 @@ class TestSeriesPlots(TestPlotBase):
 @td.skip_if_no_mpl
 class TestDataFramePlots(TestPlotBase):
     @td.skip_if_no_scipy
-    @pytest.mark.parametrize("pass_axis", [False, True])
-    def test_scatter_matrix_axis(self, pass_axis):
+    def test_scatter_matrix_axis(self):
         from pandas.plotting._matplotlib.compat import mpl_ge_3_0_0
 
         scatter_matrix = plotting.scatter_matrix
-
-        ax = None
-        if pass_axis:
-            _, ax = self.plt.subplots(3, 3)
 
         with tm.RNGContext(42):
             df = DataFrame(np.random.randn(100, 3))
@@ -118,11 +107,7 @@ class TestDataFramePlots(TestPlotBase):
             UserWarning, raise_on_extra_warnings=mpl_ge_3_0_0()
         ):
             axes = _check_plot_works(
-                scatter_matrix,
-                filterwarnings="always",
-                frame=df,
-                range_padding=0.1,
-                ax=ax,
+                scatter_matrix, filterwarnings="always", frame=df, range_padding=0.1
             )
         axes0_labels = axes[0][0].yaxis.get_majorticklabels()
 
@@ -136,11 +121,7 @@ class TestDataFramePlots(TestPlotBase):
         # we are plotting multiples on a sub-plot
         with tm.assert_produces_warning(UserWarning):
             axes = _check_plot_works(
-                scatter_matrix,
-                filterwarnings="always",
-                frame=df,
-                range_padding=0.1,
-                ax=ax,
+                scatter_matrix, filterwarnings="always", frame=df, range_padding=0.1
             )
         axes0_labels = axes[0][0].yaxis.get_majorticklabels()
         expected = ["-1.0", "-0.5", "0.0"]
@@ -272,7 +253,7 @@ class TestDataFramePlots(TestPlotBase):
     # not sure if this is indicative of a problem
     @pytest.mark.filterwarnings("ignore:Attempting to set:UserWarning")
     def test_parallel_coordinates_with_sorted_labels(self):
-        """For #15908"""
+        """ For #15908 """
         from pandas.plotting import parallel_coordinates
 
         df = DataFrame(

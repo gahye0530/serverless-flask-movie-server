@@ -7,10 +7,7 @@ import textwrap
 import numpy as np
 import pytest
 
-from pandas.compat import (
-    IS64,
-    PYPY,
-)
+from pandas.compat import IS64, PYPY
 
 from pandas import (
     CategoricalIndex,
@@ -165,9 +162,9 @@ def test_info_verbose_with_counts_spacing(
 ):
     """Test header column, spacer, first line and last line in verbose mode."""
     frame = DataFrame(np.random.randn(3, size))
-    with StringIO() as buf:
-        frame.info(verbose=True, show_counts=True, buf=buf)
-        all_lines = buf.getvalue().splitlines()
+    buf = StringIO()
+    frame.info(verbose=True, show_counts=True, buf=buf)
+    all_lines = buf.getvalue().splitlines()
     # Here table would contain only header, separator and table lines
     # dframe repr, index summary, memory usage and dtypes are excluded
     table = all_lines[3:-2]

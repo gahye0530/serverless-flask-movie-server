@@ -1,53 +1,24 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    date_range,
-)
+from pandas import DataFrame, Index, MultiIndex, date_range
 import pandas._testing as tm
 
 
 class TestTZConvert:
-    def test_tz_convert(self, frame_or_series):
+    def test_frame_tz_convert(self):
         rng = date_range("1/1/2011", periods=200, freq="D", tz="US/Eastern")
 
-        obj = DataFrame({"a": 1}, index=rng)
-        if frame_or_series is not DataFrame:
-            obj = obj["a"]
-
-        result = obj.tz_convert("Europe/Berlin")
+        df = DataFrame({"a": 1}, index=rng)
+        result = df.tz_convert("Europe/Berlin")
         expected = DataFrame({"a": 1}, rng.tz_convert("Europe/Berlin"))
-        if frame_or_series is not DataFrame:
-            expected = expected["a"]
-
         assert result.index.tz.zone == "Europe/Berlin"
-        tm.assert_equal(result, expected)
+        tm.assert_frame_equal(result, expected)
 
-    def test_tz_convert_axis1(self):
-        rng = date_range("1/1/2011", periods=200, freq="D", tz="US/Eastern")
-
-        obj = DataFrame({"a": 1}, index=rng)
-
-        obj = obj.T
-        result = obj.tz_convert("Europe/Berlin", axis=1)
+        df = df.T
+        result = df.tz_convert("Europe/Berlin", axis=1)
         assert result.columns.tz.zone == "Europe/Berlin"
-
-        expected = DataFrame({"a": 1}, rng.tz_convert("Europe/Berlin"))
-
-        tm.assert_equal(result, expected.T)
-
-    def test_tz_convert_naive(self, frame_or_series):
-        # can't convert tz-naive
-        rng = date_range("1/1/2011", periods=200, freq="D")
-        ts = Series(1, index=rng)
-        ts = frame_or_series(ts)
-
-        with pytest.raises(TypeError, match="Cannot convert tz-naive"):
-            ts.tz_convert("US/Eastern")
+        tm.assert_frame_equal(result, expected.T)
 
     @pytest.mark.parametrize("fn", ["tz_localize", "tz_convert"])
     def test_tz_convert_and_localize(self, fn):

@@ -5,13 +5,8 @@ Currently all plotting tests are marked as slow via
 ``pytestmark = pytest.mark.slow`` at the module level.
 """
 
-from __future__ import annotations
-
 import os
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-)
+from typing import TYPE_CHECKING, Sequence, Union
 import warnings
 
 import numpy as np
@@ -22,11 +17,7 @@ import pandas.util._test_decorators as td
 from pandas.core.dtypes.api import is_list_like
 
 import pandas as pd
-from pandas import (
-    DataFrame,
-    Series,
-    to_datetime,
-)
+from pandas import DataFrame, Series, to_datetime
 import pandas._testing as tm
 
 if TYPE_CHECKING:
@@ -44,8 +35,6 @@ class TestPlotBase:
         import matplotlib as mpl
 
         from pandas.plotting._matplotlib import compat
-
-        self.compat = compat
 
         mpl.rcdefaults()
 
@@ -195,7 +184,7 @@ class TestPlotBase:
             assert patch.get_visible() == visible
 
     def _check_patches_all_filled(
-        self, axes: Axes | Sequence[Axes], filled: bool = True
+        self, axes: Union["Axes", Sequence["Axes"]], filled: bool = True
     ) -> None:
         """
         Check for each artist whether it is filled or not
@@ -237,11 +226,7 @@ class TestPlotBase:
             Series used for color grouping key
             used for andrew_curves, parallel_coordinates, radviz test
         """
-        from matplotlib.collections import (
-            Collection,
-            LineCollection,
-            PolyCollection,
-        )
+        from matplotlib.collections import Collection, LineCollection, PolyCollection
         from matplotlib.lines import Line2D
 
         conv = self.colorconverter
@@ -552,7 +537,7 @@ class TestPlotBase:
             obj.plot(kind=kind, grid=False, **kws)
             assert not is_grid_on()
 
-            if kind not in ["pie", "hexbin", "scatter"]:
+            if kind != "pie":
                 self.plt.subplot(1, 4 * len(kinds), spndx)
                 spndx += 1
                 mpl.rc("axes", grid=True)
@@ -570,12 +555,6 @@ class TestPlotBase:
         Auxiliary function for correctly unpacking cycler after MPL >= 1.5
         """
         return [v[field] for v in rcParams["axes.prop_cycle"]]
-
-    def get_x_axis(self, ax):
-        return ax._shared_axes["x"] if self.compat.mpl_ge_3_5_0() else ax._shared_x_axes
-
-    def get_y_axis(self, ax):
-        return ax._shared_axes["y"] if self.compat.mpl_ge_3_5_0() else ax._shared_y_axes
 
 
 def _check_plot_works(f, filterwarnings="always", default_axes=False, **kwargs):
@@ -647,8 +626,7 @@ def _gen_two_subplots(f, fig, **kwargs):
     """
     Create plot on two subplots forcefully created.
     """
-    if "ax" not in kwargs:
-        fig.add_subplot(211)
+    kwargs.get("ax", fig.add_subplot(211))
     yield f(**kwargs)
 
     if f is pd.plotting.bootstrap_plot:

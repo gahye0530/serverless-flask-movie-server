@@ -1,14 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    isna,
-    notna,
-)
+from pandas import DataFrame, Index, MultiIndex, Series, isna, notna
 import pandas._testing as tm
 
 

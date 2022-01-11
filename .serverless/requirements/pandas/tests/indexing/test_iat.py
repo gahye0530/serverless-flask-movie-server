@@ -1,10 +1,6 @@
 import numpy as np
 
-from pandas import (
-    DataFrame,
-    Series,
-    period_range,
-)
+from pandas import DataFrame, Series, period_range
 
 
 def test_iat(float_frame):

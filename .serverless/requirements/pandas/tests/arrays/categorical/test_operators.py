@@ -5,12 +5,7 @@ import numpy as np
 import pytest
 
 import pandas as pd
-from pandas import (
-    Categorical,
-    DataFrame,
-    Series,
-    date_range,
-)
+from pandas import Categorical, DataFrame, Series, date_range
 import pandas._testing as tm
 from pandas.tests.arrays.categorical.common import TestCategorical
 

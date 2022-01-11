@@ -133,10 +133,6 @@ class TestMissing(BaseInterval, base.BaseMissingTests):
         pass
 
     @unsupported_fill
-    def test_fillna_no_op_returns_copy(self):
-        pass
-
-    @unsupported_fill
     def test_fillna_series(self):
         pass
 

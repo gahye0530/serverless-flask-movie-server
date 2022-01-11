@@ -5,27 +5,17 @@ engine is set to 'python-fwf' internally.
 """
 
 from datetime import datetime
-from io import (
-    BytesIO,
-    StringIO,
-)
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from pandas.errors import EmptyDataError
-
-from pandas import (
-    DataFrame,
-    DatetimeIndex,
-)
+import pandas as pd
+from pandas import DataFrame, DatetimeIndex
 import pandas._testing as tm
 
-from pandas.io.parsers import (
-    read_csv,
-    read_fwf,
-)
+from pandas.io.parsers import EmptyDataError, read_csv, read_fwf
 
 
 def test_basic():
@@ -686,7 +676,7 @@ bba bab b a"""
     with tm.ensure_clean() as path:
         Path(path).write_text(data)
         with open(path, "rb") as file:
-            df = read_fwf(file)
+            df = pd.read_fwf(file)
             file.seek(0)
             tm.assert_frame_equal(df, df_reference)
 
@@ -700,7 +690,7 @@ def test_encoding_mmap(memory_map):
     """
     encoding = "iso8859_1"
     data = BytesIO(" 1 A Ä 2\n".encode(encoding))
-    df = read_fwf(
+    df = pd.read_fwf(
         data,
         header=None,
         widths=[2, 2, 2, 2],

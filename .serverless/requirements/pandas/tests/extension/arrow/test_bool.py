@@ -3,15 +3,11 @@ import pytest
 
 import pandas as pd
 import pandas._testing as tm
-from pandas.api.types import is_bool_dtype
 from pandas.tests.extension import base
 
 pytest.importorskip("pyarrow", minversion="0.13.0")
 
-from pandas.tests.extension.arrow.arrays import (  # isort:skip
-    ArrowBoolArray,
-    ArrowBoolDtype,
-)
+from .arrays import ArrowBoolArray, ArrowBoolDtype  # isort:skip
 
 
 @pytest.fixture
@@ -82,10 +78,6 @@ class TestConstructors(BaseArrowTests, base.BaseConstructorsTests):
     def test_construct_empty_dataframe(self, dtype):
         super().test_construct_empty_dataframe(dtype)
 
-    @pytest.mark.xfail(reason="_from_sequence ignores dtype keyword")
-    def test_empty(self, dtype):
-        super().test_empty(dtype)
-
 
 class TestReduce(base.BaseNoReduceTests):
     def test_reduce_series_boolean(self):
@@ -97,7 +89,7 @@ class TestReduceBoolean(base.BaseBooleanReduceTests):
 
 
 def test_is_bool_dtype(data):
-    assert is_bool_dtype(data)
+    assert pd.api.types.is_bool_dtype(data)
     assert pd.core.common.is_bool_indexer(data)
     s = pd.Series(range(len(data)))
     result = s[data]

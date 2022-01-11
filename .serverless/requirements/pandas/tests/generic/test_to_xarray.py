@@ -3,17 +3,10 @@ import pytest
 
 import pandas.util._test_decorators as td
 
-from pandas import (
-    Categorical,
-    DataFrame,
-    MultiIndex,
-    Series,
-    date_range,
-)
+from pandas import Categorical, DataFrame, MultiIndex, Series, date_range
 import pandas._testing as tm
 
 
-@td.skip_if_no("xarray")
 class TestDataFrameToXArray:
     @pytest.fixture
     def df(self):
@@ -30,6 +23,7 @@ class TestDataFrameToXArray:
             }
         )
 
+    @td.skip_if_no("xarray", "0.10.0")
     def test_to_xarray_index_types(self, index, df):
         if isinstance(index, MultiIndex):
             pytest.skip("MultiIndex is tested separately")
@@ -56,6 +50,7 @@ class TestDataFrameToXArray:
         expected.columns.name = None
         tm.assert_frame_equal(result.to_dataframe(), expected)
 
+    @td.skip_if_no("xarray", min_version="0.7.0")
     def test_to_xarray_empty(self, df):
         from xarray import Dataset
 
@@ -64,9 +59,11 @@ class TestDataFrameToXArray:
         assert result.dims["foo"] == 0
         assert isinstance(result, Dataset)
 
+    @td.skip_if_no("xarray", min_version="0.7.0")
     def test_to_xarray_with_multiindex(self, df):
         from xarray import Dataset
 
+        # available in 0.7.1
         # MultiIndex
         df.index = MultiIndex.from_product([["a"], range(3)], names=["one", "two"])
         result = df.to_xarray()
@@ -84,8 +81,8 @@ class TestDataFrameToXArray:
         tm.assert_frame_equal(result, expected)
 
 
-@td.skip_if_no("xarray")
 class TestSeriesToXArray:
+    @td.skip_if_no("xarray", "0.10.0")
     def test_to_xarray_index_types(self, index):
         if isinstance(index, MultiIndex):
             pytest.skip("MultiIndex is tested separately")
@@ -104,6 +101,7 @@ class TestSeriesToXArray:
         # idempotency
         tm.assert_series_equal(result.to_series(), ser)
 
+    @td.skip_if_no("xarray", min_version="0.7.0")
     def test_to_xarray_empty(self):
         from xarray import DataArray
 
@@ -115,6 +113,7 @@ class TestSeriesToXArray:
         tm.assert_almost_equal(list(result.coords.keys()), ["foo"])
         assert isinstance(result, DataArray)
 
+    @td.skip_if_no("xarray", min_version="0.7.0")
     def test_to_xarray_with_multiindex(self):
         from xarray import DataArray
 

@@ -194,24 +194,17 @@ class TestIntervalIndex:
         tm.assert_index_equal(result, expected)
 
         # invalid type
-        res = data.insert(1, "foo")
-        expected = data.astype(object).insert(1, "foo")
-        tm.assert_index_equal(res, expected)
-
         msg = "can only insert Interval objects and NA into an IntervalArray"
         with pytest.raises(TypeError, match=msg):
-            data._data.insert(1, "foo")
+            data.insert(1, "foo")
 
         # invalid closed
         msg = "'value.closed' is 'left', expected 'right'."
         for closed in {"left", "right", "both", "neither"} - {item.closed}:
             msg = f"'value.closed' is '{closed}', expected '{item.closed}'."
-            bad_item = Interval(item.left, item.right, closed=closed)
-            res = data.insert(1, bad_item)
-            expected = data.astype(object).insert(1, bad_item)
-            tm.assert_index_equal(res, expected)
             with pytest.raises(ValueError, match=msg):
-                data._data.insert(1, bad_item)
+                bad_item = Interval(item.left, item.right, closed=closed)
+                data.insert(1, bad_item)
 
         # GH 18295 (test missing)
         na_idx = IntervalIndex([np.nan], closed=data.closed)
@@ -221,15 +214,13 @@ class TestIntervalIndex:
             tm.assert_index_equal(result, expected)
 
         if data.left.dtype.kind not in ["m", "M"]:
-            # trying to insert pd.NaT into a numeric-dtyped Index should cast
-            expected = data.astype(object).insert(1, pd.NaT)
-
+            # trying to insert pd.NaT into a numeric-dtyped Index should cast/raise
             msg = "can only insert Interval objects and NA into an IntervalArray"
             with pytest.raises(TypeError, match=msg):
-                data._data.insert(1, pd.NaT)
-
-        result = data.insert(1, pd.NaT)
-        tm.assert_index_equal(result, expected)
+                result = data.insert(1, pd.NaT)
+        else:
+            result = data.insert(1, pd.NaT)
+            tm.assert_index_equal(result, expected)
 
     def test_is_unique_interval(self, closed):
         """
@@ -246,16 +237,6 @@ class TestIntervalIndex:
         # unique nested
         idx = IntervalIndex.from_tuples([(-1, 1), (-2, 2)], closed=closed)
         assert idx.is_unique is True
-
-        # unique NaN
-        idx = IntervalIndex.from_tuples([(np.NaN, np.NaN)], closed=closed)
-        assert idx.is_unique is True
-
-        # non-unique NaN
-        idx = IntervalIndex.from_tuples(
-            [(np.NaN, np.NaN), (np.NaN, np.NaN)], closed=closed
-        )
-        assert idx.is_unique is False
 
     def test_monotonic(self, closed):
         # increasing non-overlapping
@@ -327,16 +308,6 @@ class TestIntervalIndex:
         assert idx._is_strictly_monotonic_increasing is True
         assert idx.is_monotonic_decreasing is True
         assert idx._is_strictly_monotonic_decreasing is True
-
-    def test_is_monotonic_with_nans(self):
-        # GH#41831
-        index = IntervalIndex([np.nan, np.nan])
-
-        assert not index.is_monotonic
-        assert not index._is_strictly_monotonic_increasing
-        assert not index.is_monotonic_increasing
-        assert not index._is_strictly_monotonic_decreasing
-        assert not index.is_monotonic_decreasing
 
     def test_get_item(self, closed):
         i = IntervalIndex.from_arrays((0, 1, np.nan), (1, 2, np.nan), closed=closed)
@@ -614,7 +585,7 @@ class TestIntervalIndex:
         msg = "|".join(
             [
                 "not supported between instances of 'int' and '.*.Interval'",
-                r"Invalid comparison between dtype=interval\[int64, right\] and ",
+                r"Invalid comparison between dtype=interval\[int64\] and ",
             ]
         )
         with pytest.raises(TypeError, match=msg):
@@ -723,13 +694,13 @@ class TestIntervalIndex:
         )
         tm.assert_index_equal(result, expected)
 
+        msg = "Intervals must all be closed on the same side"
         for other_closed in {"left", "right", "both", "neither"} - {closed}:
             index_other_closed = IntervalIndex.from_arrays(
                 [0, 1], [1, 2], closed=other_closed
             )
-            result = index1.append(index_other_closed)
-            expected = index1.astype(object).append(index_other_closed.astype(object))
-            tm.assert_index_equal(result, expected)
+            with pytest.raises(ValueError, match=msg):
+                index1.append(index_other_closed)
 
     def test_is_non_overlapping_monotonic(self, closed):
         # Should be True in all cases

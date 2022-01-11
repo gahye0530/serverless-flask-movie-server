@@ -1,6 +1,5 @@
 import inspect
 import sys
-import os
 import tempfile
 from io import StringIO
 from unittest import mock
@@ -559,19 +558,18 @@ class TestArrayLike:
 
         data = np.random.random(5)
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            fname = os.path.join(tmpdir, "testfile")
-            data.tofile(fname)
+        fname = tempfile.mkstemp()[1]
+        data.tofile(fname)
 
-            array_like = np.fromfile(fname, like=ref)
-            if numpy_ref is True:
-                assert type(array_like) is np.ndarray
-                np_res = np.fromfile(fname, like=ref)
-                assert_equal(np_res, data)
-                assert_equal(array_like, np_res)
-            else:
-                assert type(array_like) is self.MyArray
-                assert array_like.function is self.MyArray.fromfile
+        array_like = np.fromfile(fname, like=ref)
+        if numpy_ref is True:
+            assert type(array_like) is np.ndarray
+            np_res = np.fromfile(fname, like=ref)
+            assert_equal(np_res, data)
+            assert_equal(array_like, np_res)
+        else:
+            assert type(array_like) is self.MyArray
+            assert array_like.function is self.MyArray.fromfile
 
     @requires_array_function
     def test_exception_handling(self):
@@ -579,6 +577,5 @@ class TestArrayLike:
 
         ref = self.MyArray.array()
 
-        with assert_raises(TypeError):
-            # Raises the error about `value_error` being invalid first
+        with assert_raises(ValueError):
             np.array(1, value_error=True, like=ref)

@@ -16,8 +16,7 @@ import pandas._testing as tm
 from pandas.core.base import SpecificationError
 
 
-def test_getitem():
-    frame = DataFrame(np.random.randn(5, 5))
+def test_getitem(frame):
     r = frame.rolling(window=5)
     tm.assert_index_equal(r._selected_obj.columns, frame.columns)
 
@@ -320,12 +319,6 @@ def test_multiple_agg_funcs(func, window_size, expected_vals):
     result = window.agg({"low": ["mean", "max"], "high": ["mean", "min"]})
 
     tm.assert_frame_equal(result, expected)
-
-
-def test_is_datetimelike_deprecated():
-    s = Series(range(1)).rolling(1)
-    with tm.assert_produces_warning(FutureWarning):
-        assert not s.is_datetimelike
 
 
 @pytest.mark.filterwarnings("ignore:min_periods:FutureWarning")

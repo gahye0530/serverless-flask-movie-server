@@ -558,7 +558,7 @@ NPY_NO_EXPORT  PyArray_Descr * PyArray_PromoteTypes \
 NPY_NO_EXPORT  PyArray_Descr * PyArray_MinScalarType \
        (PyArrayObject *);
 NPY_NO_EXPORT  PyArray_Descr * PyArray_ResultType \
-       (npy_intp, PyArrayObject *arrs[], npy_intp, PyArray_Descr *descrs[]);
+       (npy_intp, PyArrayObject **, npy_intp, PyArray_Descr **);
 NPY_NO_EXPORT  npy_bool PyArray_CanCastArrayTo \
        (PyArrayObject *, PyArray_Descr *, NPY_CASTING);
 NPY_NO_EXPORT  npy_bool PyArray_CanCastTypeTo \
@@ -619,12 +619,6 @@ NPY_NO_EXPORT  int PyArray_ResolveWritebackIfCopy \
        (PyArrayObject *);
 NPY_NO_EXPORT  int PyArray_SetWritebackIfCopyBase \
        (PyArrayObject *, PyArrayObject *);
-NPY_NO_EXPORT  PyObject * PyDataMem_SetHandler \
-       (PyObject *);
-NPY_NO_EXPORT  PyObject * PyDataMem_GetHandler \
-       (void);
-extern NPY_NO_EXPORT PyObject* PyDataMem_DefaultHandler;
-
 
 #else
 
@@ -1374,7 +1368,7 @@ static void **PyArray_API=NULL;
         (*(PyArray_Descr * (*)(PyArrayObject *)) \
          PyArray_API[272])
 #define PyArray_ResultType \
-        (*(PyArray_Descr * (*)(npy_intp, PyArrayObject *arrs[], npy_intp, PyArray_Descr *descrs[])) \
+        (*(PyArray_Descr * (*)(npy_intp, PyArrayObject **, npy_intp, PyArray_Descr **)) \
          PyArray_API[273])
 #define PyArray_CanCastArrayTo \
         (*(npy_bool (*)(PyArrayObject *, PyArray_Descr *, NPY_CASTING)) \
@@ -1464,13 +1458,6 @@ static void **PyArray_API=NULL;
 #define PyArray_SetWritebackIfCopyBase \
         (*(int (*)(PyArrayObject *, PyArrayObject *)) \
          PyArray_API[303])
-#define PyDataMem_SetHandler \
-        (*(PyObject * (*)(PyObject *)) \
-         PyArray_API[304])
-#define PyDataMem_GetHandler \
-        (*(PyObject * (*)(void)) \
-         PyArray_API[305])
-#define PyDataMem_DefaultHandler (*(PyObject* *)PyArray_API[306])
 
 #if !defined(NO_IMPORT_ARRAY) && !defined(NO_IMPORT)
 static int

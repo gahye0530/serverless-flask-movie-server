@@ -13,16 +13,10 @@ class TestFillNA:
         exp = CategoricalIndex([1.0, 1.0, 3.0, 1.0], name="x")
         tm.assert_index_equal(idx.fillna(1.0), exp)
 
-        cat = idx._data
-
-        # fill by value not in categories raises ValueError on EA, casts on CI
+        # fill by value not in categories raises ValueError
         msg = "Cannot setitem on a Categorical with a new category"
         with pytest.raises(ValueError, match=msg):
-            cat.fillna(2.0)
-
-        result = idx.fillna(2.0)
-        expected = idx.astype(object).fillna(2.0)
-        tm.assert_index_equal(result, expected)
+            idx.fillna(2.0)
 
     def test_fillna_copies_with_no_nas(self):
         # Nothing to fill, should still get a copy
@@ -43,9 +37,8 @@ class TestFillNA:
         cat = ci._data
 
         msg = "Cannot setitem on a Categorical with a new category"
-        res = ci.fillna(False)
-        # nothing to fill, so we dont cast
-        tm.assert_index_equal(res, ci)
+        with pytest.raises(ValueError, match=msg):
+            ci.fillna(False)
 
         # Same check directly on the Categorical
         with pytest.raises(ValueError, match=msg):

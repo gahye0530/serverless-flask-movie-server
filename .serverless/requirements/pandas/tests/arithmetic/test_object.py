@@ -9,10 +9,7 @@ import numpy as np
 import pytest
 
 import pandas as pd
-from pandas import (
-    Series,
-    Timestamp,
-)
+from pandas import Series, Timestamp
 import pandas._testing as tm
 from pandas.core import ops
 
@@ -311,7 +308,7 @@ class TestArithmetic:
             index - "foo"
 
         with pytest.raises(TypeError, match=msg):
-            index - np.array([2, "foo"], dtype=object)
+            index - np.array([2, "foo"])
 
     def test_rsub_object(self):
         # GH#19369

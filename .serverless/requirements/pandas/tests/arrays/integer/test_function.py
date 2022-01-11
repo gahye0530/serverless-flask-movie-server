@@ -3,83 +3,84 @@ import pytest
 
 import pandas as pd
 import pandas._testing as tm
-from pandas.core.arrays import FloatingArray
+from pandas.core.arrays import integer_array
 
 
 @pytest.mark.parametrize("ufunc", [np.abs, np.sign])
 # np.sign emits a warning with nans, <https://github.com/numpy/numpy/issues/15127>
 @pytest.mark.filterwarnings("ignore:invalid value encountered in sign")
 def test_ufuncs_single_int(ufunc):
-    a = pd.array([1, 2, -3, np.nan])
+    a = integer_array([1, 2, -3, np.nan])
     result = ufunc(a)
-    expected = pd.array(ufunc(a.astype(float)), dtype="Int64")
+    expected = integer_array(ufunc(a.astype(float)))
     tm.assert_extension_array_equal(result, expected)
 
     s = pd.Series(a)
     result = ufunc(s)
-    expected = pd.Series(pd.array(ufunc(a.astype(float)), dtype="Int64"))
+    expected = pd.Series(integer_array(ufunc(a.astype(float))))
     tm.assert_series_equal(result, expected)
 
 
 @pytest.mark.parametrize("ufunc", [np.log, np.exp, np.sin, np.cos, np.sqrt])
 def test_ufuncs_single_float(ufunc):
-    a = pd.array([1, 2, -3, np.nan])
+    a = integer_array([1, 2, -3, np.nan])
     with np.errstate(invalid="ignore"):
         result = ufunc(a)
-        expected = FloatingArray(ufunc(a.astype(float)), mask=a._mask)
-    tm.assert_extension_array_equal(result, expected)
+        expected = ufunc(a.astype(float))
+    tm.assert_numpy_array_equal(result, expected)
 
     s = pd.Series(a)
     with np.errstate(invalid="ignore"):
         result = ufunc(s)
-    expected = pd.Series(expected)
+        expected = ufunc(s.astype(float))
     tm.assert_series_equal(result, expected)
 
 
 @pytest.mark.parametrize("ufunc", [np.add, np.subtract])
 def test_ufuncs_binary_int(ufunc):
     # two IntegerArrays
-    a = pd.array([1, 2, -3, np.nan])
+    a = integer_array([1, 2, -3, np.nan])
     result = ufunc(a, a)
-    expected = pd.array(ufunc(a.astype(float), a.astype(float)), dtype="Int64")
+    expected = integer_array(ufunc(a.astype(float), a.astype(float)))
     tm.assert_extension_array_equal(result, expected)
 
     # IntegerArray with numpy array
     arr = np.array([1, 2, 3, 4])
     result = ufunc(a, arr)
-    expected = pd.array(ufunc(a.astype(float), arr), dtype="Int64")
+    expected = integer_array(ufunc(a.astype(float), arr))
     tm.assert_extension_array_equal(result, expected)
 
     result = ufunc(arr, a)
-    expected = pd.array(ufunc(arr, a.astype(float)), dtype="Int64")
+    expected = integer_array(ufunc(arr, a.astype(float)))
     tm.assert_extension_array_equal(result, expected)
 
     # IntegerArray with scalar
     result = ufunc(a, 1)
-    expected = pd.array(ufunc(a.astype(float), 1), dtype="Int64")
+    expected = integer_array(ufunc(a.astype(float), 1))
     tm.assert_extension_array_equal(result, expected)
 
     result = ufunc(1, a)
-    expected = pd.array(ufunc(1, a.astype(float)), dtype="Int64")
+    expected = integer_array(ufunc(1, a.astype(float)))
     tm.assert_extension_array_equal(result, expected)
 
 
 def test_ufunc_binary_output():
-    a = pd.array([1, 2, np.nan])
+    a = integer_array([1, 2, np.nan])
     result = np.modf(a)
     expected = np.modf(a.to_numpy(na_value=np.nan, dtype="float"))
-    expected = (pd.array(expected[0]), pd.array(expected[1]))
 
     assert isinstance(result, tuple)
     assert len(result) == 2
 
     for x, y in zip(result, expected):
-        tm.assert_extension_array_equal(x, y)
+        # TODO(FloatArray): This will return an extension array.
+        # y = integer_array(y)
+        tm.assert_numpy_array_equal(x, y)
 
 
 @pytest.mark.parametrize("values", [[0, 1], [0, None]])
 def test_ufunc_reduce_raises(values):
-    a = pd.array(values)
+    a = integer_array(values)
     msg = r"The 'reduce' method is not supported."
     with pytest.raises(NotImplementedError, match=msg):
         np.add.reduce(a)

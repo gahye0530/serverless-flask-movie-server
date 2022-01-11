@@ -1,14 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    Timestamp,
-    date_range,
-)
+from pandas import DataFrame, Index, MultiIndex, Series, Timestamp, date_range
 import pandas._testing as tm
 
 
@@ -51,7 +44,7 @@ def test_rolling_apply_with_pandas_objects(window):
     expected = df.iloc[2:].reindex_like(df)
     tm.assert_frame_equal(result, expected)
 
-    with tm.external_error_raised(AttributeError):
+    with pytest.raises(AttributeError):
         df.rolling(window).apply(f, raw=True)
 
 

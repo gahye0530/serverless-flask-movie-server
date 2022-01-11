@@ -31,17 +31,17 @@ def arrays_for_binary_ufunc():
 @pytest.mark.parametrize("sparse", SPARSE, ids=SPARSE_IDS)
 def test_unary_ufunc(ufunc, sparse):
     # Test that ufunc(pd.Series) == pd.Series(ufunc)
-    arr = np.random.randint(0, 10, 10, dtype="int64")
-    arr[::2] = 0
+    array = np.random.randint(0, 10, 10, dtype="int64")
+    array[::2] = 0
     if sparse:
-        arr = SparseArray(arr, dtype=pd.SparseDtype("int64", 0))
+        array = SparseArray(array, dtype=pd.SparseDtype("int64", 0))
 
     index = list(string.ascii_letters[:10])
     name = "name"
-    series = pd.Series(arr, index=index, name=name)
+    series = pd.Series(array, index=index, name=name)
 
     result = ufunc(series)
-    expected = pd.Series(ufunc(arr), index=index, name=name)
+    expected = pd.Series(ufunc(array), index=index, name=name)
     tm.assert_series_equal(result, expected)
 
 
@@ -148,14 +148,14 @@ def test_binary_ufunc_scalar(ufunc, sparse, flip, arrays_for_binary_ufunc):
     # Test that
     #   * ufunc(pd.Series, scalar) == pd.Series(ufunc(array, scalar))
     #   * ufunc(pd.Series, scalar) == ufunc(scalar, pd.Series)
-    arr, _ = arrays_for_binary_ufunc
+    array, _ = arrays_for_binary_ufunc
     if sparse:
-        arr = SparseArray(arr)
+        array = SparseArray(array)
     other = 2
-    series = pd.Series(arr, name="name")
+    series = pd.Series(array, name="name")
 
     series_args = (series, other)
-    array_args = (arr, other)
+    array_args = (array, other)
 
     if flip:
         series_args = tuple(reversed(series_args))
@@ -167,7 +167,7 @@ def test_binary_ufunc_scalar(ufunc, sparse, flip, arrays_for_binary_ufunc):
     tm.assert_series_equal(result, expected)
 
 
-@pytest.mark.parametrize("ufunc", [np.divmod])  # TODO: any others?
+@pytest.mark.parametrize("ufunc", [np.divmod])  # any others?
 @pytest.mark.parametrize("sparse", SPARSE, ids=SPARSE_IDS)
 @pytest.mark.parametrize("shuffle", SHUFFLE)
 @pytest.mark.filterwarnings("ignore:divide by zero:RuntimeWarning")
@@ -207,14 +207,14 @@ def test_multiple_output_binary_ufuncs(ufunc, sparse, shuffle, arrays_for_binary
 def test_multiple_output_ufunc(sparse, arrays_for_binary_ufunc):
     # Test that the same conditions from unary input apply to multi-output
     # ufuncs
-    arr, _ = arrays_for_binary_ufunc
+    array, _ = arrays_for_binary_ufunc
 
     if sparse:
-        arr = SparseArray(arr)
+        array = SparseArray(array)
 
-    series = pd.Series(arr, name="name")
+    series = pd.Series(array, name="name")
     result = np.modf(series)
-    expected = np.modf(arr)
+    expected = np.modf(array)
 
     assert isinstance(result, tuple)
     assert isinstance(expected, tuple)
@@ -300,5 +300,5 @@ def test_outer():
     s = pd.Series([1, 2, 3])
     o = np.array([1, 2, 3])
 
-    with pytest.raises(NotImplementedError, match=tm.EMPTY_STRING_PATTERN):
+    with pytest.raises(NotImplementedError):
         np.subtract.outer(s, o)

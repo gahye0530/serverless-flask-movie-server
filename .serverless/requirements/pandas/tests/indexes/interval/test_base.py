@@ -1,11 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    IntervalIndex,
-    Series,
-    date_range,
-)
+from pandas import IntervalIndex, Series, date_range
 import pandas._testing as tm
 from pandas.tests.indexes.common import Base
 
@@ -16,17 +12,13 @@ class TestBase(Base):
     in test_interval.py or the specific test file (e.g. test_astype.py)
     """
 
-    _index_cls = IntervalIndex
-
-    @pytest.fixture
-    def simple_index(self) -> IntervalIndex:
-        return self._index_cls.from_breaks(range(11), closed="right")
+    _holder = IntervalIndex
 
     @pytest.fixture
     def index(self):
         return tm.makeIntervalIndex(10)
 
-    def create_index(self, *, closed="right"):
+    def create_index(self, closed="right"):
         return IntervalIndex.from_breaks(range(11), closed=closed)
 
     def test_repr_max_seq_item_setting(self):
@@ -48,8 +40,8 @@ class TestBase(Base):
         tm.assert_index_equal(result, expected)
 
     @pytest.mark.parametrize("klass", [list, tuple, np.array, Series])
-    def test_where(self, simple_index, klass):
-        idx = simple_index
+    def test_where(self, closed, klass):
+        idx = self.create_index(closed=closed)
         cond = [True] * len(idx)
         expected = idx
         result = expected.where(klass(cond))
@@ -60,11 +52,11 @@ class TestBase(Base):
         result = idx.where(klass(cond))
         tm.assert_index_equal(result, expected)
 
-    def test_getitem_2d_deprecated(self, simple_index):
+    def test_getitem_2d_deprecated(self):
         # GH#30588 multi-dim indexing is deprecated, but raising is also acceptable
-        idx = simple_index
+        idx = self.create_index()
         with pytest.raises(ValueError, match="multi-dimensional indexing not allowed"):
-            with tm.assert_produces_warning(FutureWarning):
+            with tm.assert_produces_warning(FutureWarning, check_stacklevel=False):
                 idx[:, None]
 
 

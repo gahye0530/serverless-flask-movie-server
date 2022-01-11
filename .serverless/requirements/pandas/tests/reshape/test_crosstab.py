@@ -3,14 +3,7 @@ import pytest
 
 from pandas.core.dtypes.common import is_categorical_dtype
 
-from pandas import (
-    CategoricalIndex,
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    crosstab,
-)
+from pandas import CategoricalIndex, DataFrame, Index, MultiIndex, Series, crosstab
 import pandas._testing as tm
 
 
@@ -240,10 +233,7 @@ class TestCrosstab:
         s2 = Series([4, 5, 6], index=[4, 5, 6])
 
         actual = crosstab(s1, s2)
-        expected = DataFrame(
-            index=Index([], dtype="int64", name="row_0"),
-            columns=Index([], dtype="int64", name="col_0"),
-        )
+        expected = DataFrame()
 
         tm.assert_frame_equal(actual, expected)
 
@@ -259,8 +249,6 @@ class TestCrosstab:
         expected.columns = Index([3, 4, "All"], name="b")
         tm.assert_frame_equal(actual, expected)
 
-    def test_margin_dropna2(self):
-
         df = DataFrame(
             {"a": [1, np.nan, np.nan, np.nan, 2, np.nan], "b": [3, np.nan, 4, 4, 4, 4]}
         )
@@ -269,8 +257,6 @@ class TestCrosstab:
         expected.index = Index([1.0, 2.0, "All"], name="a")
         expected.columns = Index([3.0, 4.0, "All"], name="b")
         tm.assert_frame_equal(actual, expected)
-
-    def test_margin_dropna3(self):
 
         df = DataFrame(
             {"a": [1, np.nan, np.nan, np.nan, np.nan, 2], "b": [3, 3, 4, 4, 4, 4]}
@@ -281,7 +267,6 @@ class TestCrosstab:
         expected.columns = Index([3, 4, "All"], name="b")
         tm.assert_frame_equal(actual, expected)
 
-    def test_margin_dropna4(self):
         # GH 12642
         # _add_margins raises KeyError: Level None not found
         # when margins=True and dropna=False
@@ -292,7 +277,6 @@ class TestCrosstab:
         expected.columns = Index([3, 4, "All"], name="b")
         tm.assert_frame_equal(actual, expected)
 
-    def test_margin_dropna5(self):
         df = DataFrame(
             {"a": [1, np.nan, np.nan, np.nan, 2, np.nan], "b": [3, np.nan, 4, 4, 4, 4]}
         )
@@ -302,7 +286,6 @@ class TestCrosstab:
         expected.columns = Index([3.0, 4.0, "All"], name="b")
         tm.assert_frame_equal(actual, expected)
 
-    def test_margin_dropna6(self):
         a = np.array(["foo", "foo", "foo", "bar", "bar", "foo", "foo"], dtype=object)
         b = np.array(["one", "one", "two", "one", "two", np.nan, "two"], dtype=object)
         c = np.array(
@@ -402,12 +385,6 @@ class TestCrosstab:
             crosstab(df.a, df.b, normalize=True, margins=True), all_normal_margins
         )
 
-    def test_crosstab_normalize_arrays(self):
-        # GH#12578
-        df = DataFrame(
-            {"a": [1, 2, 2, 2, 2], "b": [3, 3, 4, 4, 4], "c": [1, 1, np.nan, 1, 1]}
-        )
-
         # Test arrays
         crosstab(
             [np.array([1, 1, 2, 2]), np.array([1, 2, 1, 2])], np.array([1, 2, 1, 2])
@@ -438,7 +415,7 @@ class TestCrosstab:
         )
         tm.assert_frame_equal(test_case, norm_sum)
 
-    def test_crosstab_with_empties(self, using_array_manager):
+    def test_crosstab_with_empties(self):
         # Check handling of empties
         df = DataFrame(
             {
@@ -463,9 +440,6 @@ class TestCrosstab:
             index=Index([1, 2], name="a", dtype="int64"),
             columns=Index([3, 4], name="b"),
         )
-        if using_array_manager:
-            # INFO(ArrayManager) column without NaNs can preserve int dtype
-            nans[3] = nans[3].astype("int64")
 
         calculated = crosstab(df.a, df.b, values=df.c, aggfunc="count", normalize=False)
         tm.assert_frame_equal(nans, calculated)
@@ -559,8 +533,6 @@ class TestCrosstab:
         expected = DataFrame(
             expected_data, index=expected_index, columns=expected_column
         )
-        # aggfunc is np.size, resulting in integers
-        expected["All"] = expected["All"].astype("int64")
         tm.assert_frame_equal(result, expected)
 
     def test_crosstab_duplicate_names(self):
@@ -816,7 +788,7 @@ def test_categoricals(a_dtype, b_dtype):
     if not a_is_cat:
         expected = expected.loc[[0, 2, "All"]]
         expected["All"] = expected["All"].astype("int64")
-    repr(result)
-    repr(expected)
-    repr(expected.loc[[0, 2, "All"]])
+    print(result)
+    print(expected)
+    print(expected.loc[[0, 2, "All"]])
     tm.assert_frame_equal(result, expected)

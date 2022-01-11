@@ -1,12 +1,7 @@
 import numpy as np
 import pytest
 
-from pandas import (
-    DataFrame,
-    Series,
-    date_range,
-    period_range,
-)
+from pandas import DataFrame, Series, date_range, period_range
 import pandas._testing as tm
 
 
@@ -110,9 +105,9 @@ class TestPeriodIndex:
 
         # Check the lower-level calls are raising where expected.
         with pytest.raises(TypeError, match=msg):
-            idx._maybe_cast_slice_bound("foo", "left")
+            idx._maybe_cast_slice_bound("foo", "left", "loc")
         with pytest.raises(TypeError, match=msg):
-            idx.get_slice_bound("foo", "left")
+            idx.get_slice_bound("foo", "left", "loc")
 
         with pytest.raises(TypeError, match=msg):
             obj["2013/09/30":"foo"]
