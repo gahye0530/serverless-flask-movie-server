@@ -20,26 +20,26 @@ class UserInfoResource(Resource) :
             record_list = cursor.fetchall()
 
             # gender 정보를 문자로 바꾸어주자
-            gender = record_list[0]['gender']
-            if  gender == 0 : 
-                gender =  "Agender"                
-            elif gender == 1: 
-                gender = "Bigender"  
-            elif gender ==  2:
-                gender = "Female"
-            elif gender == 3 :
-                gender = "Genderfluid"
-            elif gender == 4 :
-                gender = "Genderqueer"
-            elif gender == 5 :
-                gender = "Male"
-            elif gender == 6 :
-                gender = "Non-binary"
-            elif gender == 7 :
-                gender = "Polygender"
-            else :
-                gender = "성별"
-            record_list[0]['gender'] = gender
+            # gender = record_list[0]['gender']
+            # if  gender == 0 : 
+            #     gender =  "Agender"                
+            # elif gender == 1: 
+            #     gender = "Bigender"  
+            # elif gender ==  2:
+            #     gender = "Female"
+            # elif gender == 3 :
+            #     gender = "Genderfluid"
+            # elif gender == 4 :
+            #     gender = "Genderqueer"
+            # elif gender == 5 :
+            #     gender = "Male"
+            # elif gender == 6 :
+            #     gender = "Non-binary"
+            # elif gender == 7 :
+            #     gender = "Polygender"
+            # else :
+            #     gender = "성별"
+            # record_list[0]['gender'] = gender
             user_info = record_list[0]
             # i = 0
             # for record in record_list:
