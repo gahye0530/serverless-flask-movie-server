@@ -37,4 +37,4 @@ class UserLoginResource(Resource) :
 
         user_id = record_list[0]['id']
         access_token = create_access_token(user_id)
-        return {'result' : record_list, 'access_token' : access_token}
+        return {'result' : '로그인성공', 'access_token' : access_token}
