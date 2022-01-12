@@ -34,7 +34,7 @@ api.add_resource(MovieSearchResource, '/api/v1/movie/search')
 api.add_resource(MovieReviewResource, '/api/v1/review')
 api.add_resource(FavoriteResource, '/api/v1/favorit/<int:movie_id>')
 api.add_resource(FavoriteListResource, '/api/v1/favorit')
-# api.add_resource(MovieRecommandResource, '/api/v1/movie/recommendation')
-api.add_resource(MovieRealtimeRecommandResource, '/api/v1/movie/recommendation') # 실시간 추천
+api.add_resource(MovieRecommandResource, '/api/v1/movie/recommendation')
+# api.add_resource(MovieRealtimeRecommandResource, '/api/v1/movie/recommendation') # 실시간 추천
 
 if __name__ == '__main__' : app.run()
