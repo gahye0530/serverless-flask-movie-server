@@ -207,7 +207,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask-movie-server/dev/1641888930875-2022-01-11T08:15:30.875Z/serverless-flask-movie-server.zip"
+          "S3Key": "serverless/serverless-flask-movie-server/dev/1641958177515-2022-01-12T03:29:37.515Z/serverless-flask-movie-server.zip"
         },
         "Handler": "s_api.handler",
         "Runtime": "python3.8",
@@ -225,14 +225,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersionqq7f3VDiR8Bt1LdiLusV4oLXJC6wWNckVbLqNGpMyo": {
+    "ApiLambdaVersionTqvow5vOeyD5E43YxPD9wNviqArEvi0DCFsZD6B0wCs": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "0c8DMuh0S/nhw1UQgIz7YPIa1sNq0Z3Kv4n35ubvv5s="
+        "CodeSha256": "xRfR5pjvCKGvCu2PSjD9GeFsAor9R5DbeNB0dFxCvyo="
       }
     },
     "ApiGatewayRestApi": {
@@ -357,7 +357,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1641888857106": {
+    "ApiGatewayDeployment1641958118735": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -516,7 +516,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask-movie-server/dev/1641888930875-2022-01-11T08:15:30.875Z/custom-resources.zip"
+          "S3Key": "serverless/serverless-flask-movie-server/dev/1641958177515-2022-01-12T03:29:37.515Z/custom-resources.zip"
         },
         "FunctionName": "serverless-flask-movie-server-dev-custom-resource-apigw-cw-role",
         "Handler": "apiGatewayCloudWatchRole/handler.handler",
@@ -578,7 +578,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionqq7f3VDiR8Bt1LdiLusV4oLXJC6wWNckVbLqNGpMyo"
+        "Ref": "ApiLambdaVersionTqvow5vOeyD5E43YxPD9wNviqArEvi0DCFsZD6B0wCs"
       },
       "Export": {
         "Name": "sls-serverless-flask-movie-server-dev-ApiLambdaFunctionQualifiedArn"

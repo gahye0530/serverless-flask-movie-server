@@ -7,5 +7,3 @@ passlib
 # python email validation library
 email-validator
 flask-jwt-extended
-pandas
-numpy
