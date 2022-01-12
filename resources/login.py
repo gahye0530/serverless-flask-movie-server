@@ -32,8 +32,8 @@ class UserLoginResource(Resource) :
 
         if len(record_list) == 0 :
             return {'error' : '회원가입이 되어있지 않은 사람입니다.'}, HTTPStatus.UNAUTHORIZED
-        # if check_password(data['password'], record_list[0]['password']) == False :
-        #     return {'error' : '비번이 다릅니다.'}, HTTPStatus.UNAUTHORIZED
+        if check_password(data['password'], record_list[0]['password']) == False :
+            return {'error' : '비번이 다릅니다.'}, HTTPStatus.UNAUTHORIZED
 
         user_id = record_list[0]['id']
         access_token = create_access_token(user_id)
